@@ -31,8 +31,14 @@ public class LibroVistaController {
 
     @PostMapping("/vista/libros/guardar")
     public String guardarLibro(@ModelAttribute LibroModel libro, RedirectAttributes atributos) {
-        libroService.guardarLibro(libro);
-        atributos.addFlashAttribute("mensaje", "Libro registrado correctamente.");
+        
+        try {
+            libroService.guardarLibro(libro);
+            atributos.addFlashAttribute("mensaje", "Libro registrado correctamente.");
+        } catch (IllegalArgumentException exception) {
+            atributos.addFlashAttribute("error", exception.getMessage());
+        }
+
         return "redirect:/vista/libros";
     }
 
@@ -48,13 +54,19 @@ public class LibroVistaController {
         return "redirect:/vista/libros";
     }
 
+    
     @PostMapping("/vista/libros/{isbn}/eliminar")
     public String eliminarLibro(@PathVariable Long isbn, RedirectAttributes atributos) {
-        if (libroService.eliminarLibro(isbn)) {
-            atributos.addFlashAttribute("mensaje", "Libro eliminado correctamente.");
-        } else {
-            atributos.addFlashAttribute("error", "No se pudo eliminar el libro.");
+        try {
+            if (libroService.eliminarLibro(isbn)) {
+                atributos.addFlashAttribute("mensaje", "Libro eliminado correctamente.");
+            } else {
+                atributos.addFlashAttribute("error", "No existe el libro que intentas eliminar.");
+            }
+        } catch (IllegalArgumentException exception) {
+            atributos.addFlashAttribute("error", exception.getMessage());
         }
+
         return "redirect:/vista/libros";
     }
 }

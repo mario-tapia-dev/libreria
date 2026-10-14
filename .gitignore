@@ -42,3 +42,6 @@ build/
 ### Configuración sensible
 
 **/src/main/resources/application.properties
+
+# Credenciales locales
+.env

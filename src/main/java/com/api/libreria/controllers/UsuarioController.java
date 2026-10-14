@@ -1,7 +1,10 @@
 package com.api.libreria.controllers;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,13 +27,19 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @GetMapping
-    public ArrayList<UsuarioModel> obtenerUsuarios() {
+    public List<UsuarioModel> obtenerUsuarios() {
         return this.usuarioService.obtenerUsuarios();
     }
 
+    
     @PostMapping
-    public UsuarioModel guardarUsuario(@RequestBody UsuarioModel usuario) {
-        return this.usuarioService.guardarUsuario(usuario);
+    public ResponseEntity<?> guardarUsuario(@RequestBody UsuarioModel usuario) {
+        try {
+            UsuarioModel guardado = usuarioService.guardarUsuario(usuario);
+            return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.badRequest().body(exception.getMessage());
+        }
     }
 
     @GetMapping(path = "/{id}")
@@ -38,19 +47,27 @@ public class UsuarioController {
         return this.usuarioService.obtenerPorId(id);
     }
 
+    
     @PutMapping(path = "/{id}")
-    public UsuarioModel actualizarUsuario(@RequestBody UsuarioModel request, @PathVariable("id") Long id) {
-        return this.usuarioService.actualizarUsuario(request, id);
+    public ResponseEntity<?> actualizarUsuario( @RequestBody UsuarioModel request, @PathVariable("id") Long id ) {
+
+        try {
+            return ResponseEntity.ok(this.usuarioService.actualizarUsuario(request, id));
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+        }
     }
 
+    
     @DeleteMapping(path = "/{id}")
-    public String eliminarPorId(@PathVariable("id") Long id) {
-        boolean ok = this.usuarioService.eliminarUsuario(id);
-
-        if (ok) {
-            return "Se eliminó el usuario con ID: " + id;
-        } else {
-            return "No se pudo eliminar el usuario con ID: " + id;
+    public ResponseEntity<?> eliminarPorId(@PathVariable("id") Long id) {
+        try {
+            if (usuarioService.eliminarUsuario(id)) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
         }
     }
 }

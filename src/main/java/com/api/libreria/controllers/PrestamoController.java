@@ -3,6 +3,9 @@ package com.api.libreria.controllers;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,9 +24,15 @@ public class PrestamoController {
         return this.prestamoService.obtenerPrestamos();
     }
 
+    
     @PostMapping
-    public PrestamoModel registrarPrestamo(@RequestParam Long libroIsbn, @RequestParam Long socioId) {
-        return this.prestamoService.registrarPrestamo(libroIsbn, socioId);
+    public ResponseEntity<?> registrarPrestamo(@RequestParam Long libroIsbn, @RequestParam Long socioId) {
+
+        try {
+            return ResponseEntity.ok(this.prestamoService.registrarPrestamo(libroIsbn, socioId));
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.badRequest().body(exception.getMessage());
+        }
     }
 
     @GetMapping(path = "/{id}")
@@ -31,9 +40,15 @@ public class PrestamoController {
         return this.prestamoService.obtenerPorId(id);
     }
 
+    
     @PutMapping(path = "/{id}/devolucion")
-    public PrestamoModel registrarDevolucion(@PathVariable("id") Long id) {
-        return this.prestamoService.registrarDevolucion(id);
+    public ResponseEntity<?> registrarDevolucion(@PathVariable("id") Long id) {
+
+        try {
+            return ResponseEntity.ok(this.prestamoService.registrarDevolucion(id));
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+        }
     }
 
     @DeleteMapping(path = "/{id}")

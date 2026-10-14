@@ -20,7 +20,7 @@ public class UsuarioVistaController {
         this.usuarioService = usuarioService;
     }
 
-    @GetMapping({ "/", "/vista/usuarios" })
+    @GetMapping("/vista/usuarios")
     public String mostrarUsuarios(Model model) {
         model.addAttribute("usuarios", usuarioService.obtenerUsuarios());
         if (!model.containsAttribute("usuario")) {
@@ -29,10 +29,16 @@ public class UsuarioVistaController {
         return "usuarios";
     }
 
+    
     @PostMapping("/vista/usuarios/guardar")
     public String guardarUsuarios(@ModelAttribute UsuarioModel usuario, RedirectAttributes atributos) {
-        usuarioService.guardarUsuario(usuario);
-        atributos.addFlashAttribute("mensaje", "Usuario registrado correctamente.");
+        try {
+            usuarioService.guardarUsuario(usuario);
+            atributos.addFlashAttribute("mensaje", "Usuario registrado correctamente.");
+        } catch (IllegalArgumentException exception) {
+            atributos.addFlashAttribute("error", exception.getMessage());
+        }
+
         return "redirect:/vista/usuarios";
     }
 
@@ -48,14 +54,21 @@ public class UsuarioVistaController {
         return "redirect:/vista/usuarios";
     }
 
+    
     @PostMapping("/vista/usuarios/{id}/eliminar")
-    public String eliminarUsuario(@PathVariable Long id, RedirectAttributes atributos) {
-        if (usuarioService.eliminarUsuario(id)) {
-            atributos.addFlashAttribute("mensaje", "Usuario eliminado correctamente.");
-        } else {
-            atributos.addFlashAttribute("error", "No se pudo eliminar el usuario.");
+    public String eliminarUsuario(@PathVariable Long id,
+        RedirectAttributes atributos) {
+        try {
+            if (usuarioService.eliminarUsuario(id)) {
+                atributos.addFlashAttribute("mensaje", "Usuario eliminado correctamente.");
+            } else {
+                atributos.addFlashAttribute("error", "No existe el usuario que intentas eliminar.");
+            }
+        } catch (IllegalArgumentException exception) {
+            atributos.addFlashAttribute("error", exception.getMessage());
         }
-        return "redirect:/usuarios/libros";
+
+        return "redirect:/vista/usuarios";
     }
 
 }

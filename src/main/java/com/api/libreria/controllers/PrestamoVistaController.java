@@ -44,17 +44,29 @@ public class PrestamoVistaController {
         return "redirect:/vista/prestamos";
     }
 
+    
     @PostMapping("/vista/prestamos/{id}/devolucion")
-    public String registrarDevolucion(@PathVariable Long id, RedirectAttributes atributos) {
-        prestamoService.registrarDevolucion(id);
-        atributos.addFlashAttribute("mensaje", "Devolución registrada.");
+    public String registrarDevolucion( @PathVariable Long id, RedirectAttributes atributos) {
+
+        try {
+            prestamoService.registrarDevolucion(id);
+            atributos.addFlashAttribute("mensaje", "Devolución registrada.");
+        } catch (IllegalArgumentException exception) {
+            atributos.addFlashAttribute("error", exception.getMessage());
+        }
+
         return "redirect:/vista/prestamos";
     }
 
     @PostMapping("/vista/prestamos/{id}/eliminar")
-    public String eliminarPrestamo(@PathVariable Long id, RedirectAttributes atributos) {
-        prestamoService.eliminarPrestamo(id);
-        atributos.addFlashAttribute("mensaje", "Préstamo eliminado.");
+    public String eliminarPrestamo( @PathVariable Long id, RedirectAttributes atributos ) {
+
+        if (prestamoService.eliminarPrestamo(id)) {
+            atributos.addFlashAttribute("mensaje", "Préstamo eliminado.");
+        } else {
+            atributos.addFlashAttribute("error", "No existe el préstamo o no se pudo eliminar.");
+        }
+
         return "redirect:/vista/prestamos";
     }
 }

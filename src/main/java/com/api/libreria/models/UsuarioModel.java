@@ -1,5 +1,7 @@
 package com.api.libreria.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,7 +25,8 @@ public class UsuarioModel {
     @Column
     private String correo;
 
-    @Column
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Column(nullable = false)
     private String contrasena;
 
     @Column
